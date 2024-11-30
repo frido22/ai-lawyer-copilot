@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Lawyer Copilot</title>
+  <style>
+    body {
+      width: 400px;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .logo {
+      width: 32px;
+      height: 32px;
+      margin-right: 10px;
+    }
+    h1 {
+      font-size: 18px;
+      margin: 0;
+      color: #2C3E50;
+    }
+    .analyze-btn {
+      width: 100%;
+      padding: 10px;
+      background-color: #4A90E2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 15px;
+      transition: background-color 0.3s ease;
+    }
+    .analyze-btn:hover {
+      background-color: #357ABD;
+    }
+    .analyze-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 20px 0;
+      color: #666;
+    }
+    .results {
+      display: none;
+    }
+    .results h2 {
+      font-size: 16px;
+      color: #2C3E50;
+      margin-bottom: 15px;
+    }
+    .violation {
+      background-color: #f8f9fa;
+      border-left: 4px solid;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      transition: transform 0.2s ease;
+    }
+    .violation:hover {
+      transform: translateX(5px);
+    }
+    .violation[data-severity="HIGH"] {
+      border-left-color: #E74C3C;
+    }
+    .violation[data-severity="MEDIUM"] {
+      border-left-color: #F39C12;
+    }
+    .violation[data-severity="LOW"] {
+      border-left-color: #3498DB;
+    }
+    .violation h3 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .violation .severity {
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: white;
+      margin-left: auto;
+    }
+    .violation[data-severity="HIGH"] .severity {
+      background-color: #E74C3C;
+    }
+    .violation[data-severity="MEDIUM"] .severity {
+      background-color: #F39C12;
+    }
+    .violation[data-severity="LOW"] .severity {
+      background-color: #3498DB;
+    }
+    .violation p {
+      margin: 0;
+      font-size: 13px;
+      color: #666;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="images/icon48.png" alt="Logo" class="logo">
+    <h1>AI Lawyer Copilot</h1>
+  </div>
+  
+  <button id="analyzeBtn" class="analyze-btn">
+    Analyze Terms & Conditions
+  </button>
+
+  <div id="loading" class="loading">
+    Analyzing document... Please wait...
+  </div>
+
+  <div id="results" class="results">
+    <h2>Top Privacy Concerns:</h2>
+    <div id="violations"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

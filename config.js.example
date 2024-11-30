@@ -1,0 +1,8 @@
+// Configuration settings
+const config = {
+    // Replace with your OpenAI API key from https://platform.openai.com/
+    OPENAI_API_KEY: 'your-api-key-here'
+};
+
+// Export the configuration
+export default config;
