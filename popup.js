@@ -5,12 +5,35 @@ document.addEventListener('DOMContentLoaded', function() {
   const violationsDiv = document.getElementById('violations');
   const settingsBtn = document.querySelector('.settings-btn');
   const settingsPanel = document.getElementById('settingsPanel');
+
+  // Function to check if settings are configured
+  function checkSettings() {
+    chrome.storage.sync.get(['OPENAI_API_KEY', 'OPENAI_API_MODEL', 'TOP_K_RESULTS_SEVERITY'], function(items) {
+      const tooltipText = document.querySelector('.tooltiptext');
+      if (items.OPENAI_API_KEY && items.OPENAI_API_MODEL && items.TOP_K_RESULTS_SEVERITY) {
+        analyzeBtn.disabled = false;
+        if (tooltipText) {
+          tooltipText.style.display = 'none';
+        }
+      } else {
+        analyzeBtn.disabled = true;
+        if (tooltipText) {
+          tooltipText.style.display = 'block';
+        }
+      }
+    });
+    }
+
+  // Check settings on load
+  checkSettings();
+
   // Load saved settings
   chrome.storage.sync.get(['OPENAI_API_KEY', 'OPENAI_API_MODEL', 'TOP_K_RESULTS_SEVERITY'], function(items) {
     if (items.OPENAI_API_KEY) document.getElementById('apiKey').value = items.OPENAI_API_KEY;
     if (items.OPENAI_API_MODEL) document.getElementById('model').value = items.OPENAI_API_MODEL;
     if (items.TOP_K_RESULTS_SEVERITY) document.getElementById('top_k_results_severity').value = items.TOP_K_RESULTS_SEVERITY;
   });
+
   // Settings button click handler
   settingsBtn.addEventListener('click', function() {
     settingsPanel.classList.toggle('show');
@@ -35,8 +58,8 @@ document.addEventListener('DOMContentLoaded', function() {
       TOP_K_RESULTS_SEVERITY: topKResults
     }, function() {
       settingsPanel.classList.remove('show');
-      // Optional: Show a success message
       alert('Settings saved successfully!');
+      checkSettings(); // Check settings after saving
     });
   });
   
@@ -65,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
           settings: settings
         });
 
-        if (analysis && analysis.violations) {  // Added check for analysis existence
+        if (analysis && analysis.violations) {
           // Display results
           displayResults(analysis.violations);
         } else {
@@ -84,7 +107,6 @@ document.addEventListener('DOMContentLoaded', function() {
       analyzeBtn.disabled = false;
     }
   });
-
 
   function displayResults(violations) {
     violationsDiv.innerHTML = '';

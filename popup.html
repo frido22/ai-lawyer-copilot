@@ -176,6 +176,34 @@
     .save-btn:hover {
       background-color: #357ABD;
     }
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 200px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 8px;
+      position: absolute;
+      z-index: 1;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: all 0.3s ease;
+      font-size: 12px;
+      pointer-events: none;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -216,9 +244,12 @@
     <button id="saveSettings" class="save-btn">Save Settings</button>
   </div>
 
-  <button id="analyzeBtn" class="analyze-btn">
-    Analyze Terms & Conditions
-  </button>
+  <div class="tooltip">
+    <button id="analyzeBtn" class="analyze-btn" disabled>
+      Analyze Terms & Conditions
+    </button>
+    <span class="tooltiptext">Please configure your OpenAI API Key and settings using the gear icon in the top right corner</span>
+  </div>
 
   <div id="loading" class="loading">
     Analyzing document... Please wait...
