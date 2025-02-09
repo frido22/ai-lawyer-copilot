@@ -3,7 +3,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getTerms') {
     // Get all text content from the page
     let text = document.body.innerText;
-    console.log('Found text:', text);
+    // console.log('Found text:', text);
 
     // Try to find specific terms and conditions sections
     const possibleSelectors = [
