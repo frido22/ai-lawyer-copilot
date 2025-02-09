@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "AI Lawyer Copilot",
+  "name": "TERMSinator",
   "version": "1.0",
   "description": "AI-powered privacy policy and terms analyzer",
   "permissions": [

@@ -3,7 +3,44 @@ document.addEventListener('DOMContentLoaded', function() {
   const loadingDiv = document.getElementById('loading');
   const resultsDiv = document.getElementById('results');
   const violationsDiv = document.getElementById('violations');
+  const settingsBtn = document.querySelector('.settings-btn');
+  const settingsPanel = document.getElementById('settingsPanel');
+  // Load saved settings
+  chrome.storage.sync.get(['OPENAI_API_KEY', 'OPENAI_API_MODEL', 'TOP_K_RESULTS_SEVERITY'], function(items) {
+    if (items.OPENAI_API_KEY) document.getElementById('apiKey').value = items.OPENAI_API_KEY;
+    if (items.OPENAI_API_MODEL) document.getElementById('model').value = items.OPENAI_API_MODEL;
+    if (items.TOP_K_RESULTS_SEVERITY) document.getElementById('top_k_results_severity').value = items.TOP_K_RESULTS_SEVERITY;
+  });
+  // Settings button click handler
+  settingsBtn.addEventListener('click', function() {
+    settingsPanel.classList.toggle('show');
+  });
 
+  // Close settings panel when clicking outside
+  document.addEventListener('click', function(event) {
+    if (!settingsPanel.contains(event.target) && !settingsBtn.contains(event.target)) {
+      settingsPanel.classList.remove('show');
+    }
+  });
+
+  // Save settings
+  document.getElementById('saveSettings').addEventListener('click', function() {
+    const apiKey = document.getElementById('apiKey').value;
+    const model = document.getElementById('model').value;
+    const topKResults = document.getElementById('top_k_results_severity').value;
+  
+    chrome.storage.sync.set({
+      OPENAI_API_KEY: apiKey,
+      OPENAI_API_MODEL: model,
+      TOP_K_RESULTS_SEVERITY: topKResults
+    }, function() {
+      settingsPanel.classList.remove('show');
+      // Optional: Show a success message
+      alert('Settings saved successfully!');
+    });
+  });
+  
+  // Analyze button click handler
   analyzeBtn.addEventListener('click', async () => {
     // Show loading state
     loadingDiv.style.display = 'block';
@@ -17,26 +54,37 @@ document.addEventListener('DOMContentLoaded', function() {
       // Send message to content script to get the page content
       const response = await chrome.tabs.sendMessage(tab.id, { action: 'getTerms' });
       
-      if (response.text) {
+      if (response && response.text) {
+        // Get settings from storage
+        const settings = await chrome.storage.sync.get(['OPENAI_API_KEY', 'OPENAI_API_MODEL', 'TOP_K_RESULTS_SEVERITY']);
+        console.log('Settings:', settings);
         // Analyze the text using background script (which handles API calls)
         const analysis = await chrome.runtime.sendMessage({
           action: 'analyzeTerms',
-          text: response.text
+          text: response.text,
+          settings: settings
         });
 
-        // Display results
-        displayResults(analysis.violations);
+        if (analysis && analysis.violations) {  // Added check for analysis existence
+          // Display results
+          displayResults(analysis.violations);
+        } else {
+          throw new Error('No analysis results received');
+        }
+      } else {
+        throw new Error('No text content received from page');
       }
     } catch (error) {
       console.error('Error:', error);
       violationsDiv.innerHTML = '<div class="violation"><h3>Error</h3><p>Could not analyze the page. Make sure you\'re on a page with terms and conditions.</p></div>';
+    } finally {
+      // Hide loading state
+      loadingDiv.style.display = 'none';
+      resultsDiv.style.display = 'block';
+      analyzeBtn.disabled = false;
     }
-
-    // Hide loading state
-    loadingDiv.style.display = 'none';
-    resultsDiv.style.display = 'block';
-    analyzeBtn.disabled = false;
   });
+
 
   function displayResults(violations) {
     violationsDiv.innerHTML = '';

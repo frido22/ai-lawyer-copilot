@@ -1,17 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI Lawyer Copilot</title>
+  <title>TERMSinator</title>
   <style>
     body {
+      min-width: 400px;
+      min-height: 300px;
       width: 400px;
       padding: 20px;
+      margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     .header {
       display: flex;
       align-items: center;
       margin-bottom: 20px;
+      justify-content: space-between; /* Add this to push items apart */
+    }
+    .title-container { /* New container for logo and title */
+      display: flex;
+      align-items: center;
+    }
+    .settings-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+      color: #2C3E50;
+      transition: color 0.3s ease;
+    }
+    .settings-btn:hover {
+      color: #4A90E2;
     }
     .logo {
       width: 32px;
@@ -105,14 +124,98 @@
       color: #666;
       line-height: 1.4;
     }
+    .settings-panel {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 300px;
+      z-index: 1000;
+    }
+    .settings-panel.show {
+      display: block;
+    }
+    .settings-group {
+      margin-bottom: 15px;
+    }
+    .settings-group label {
+      display: block;
+      font-size: 13px;
+      color: #2C3E50;
+      margin-bottom: 5px;
+    }
+    .settings-group input,
+    .settings-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .settings-group input:focus,
+    .settings-group select:focus {
+      outline: none;
+      border-color: #4A90E2;
+    }
+    .save-btn {
+      width: 100%;
+      padding: 8px;
+      background-color: #4A90E2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background-color 0.3s ease;
+    }
+    .save-btn:hover {
+      background-color: #357ABD;
+    }
   </style>
 </head>
 <body>
   <div class="header">
-    <img src="images/icon48.png" alt="Logo" class="logo">
-    <h1>AI Lawyer Copilot</h1>
+    <div class="title-container">
+      <img src="images/icon48.png" alt="Logo" class="logo">
+      <h1>TERMSinator</h1>
+    </div>
+    <button class="settings-btn">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"/>
+      </svg>
+    </button>
   </div>
-  
+
+  <div id="settingsPanel" class="settings-panel">
+    <div class="settings-group">
+      <label for="apiKey">OpenAI API Key</label>
+      <input type="password" id="apiKey" placeholder="Enter your API key">
+    </div>
+    <div class="settings-group">
+      <label for="model">OpenAI Model</label>
+      <select id="model">
+        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+        <option value="gpt-4-turbo-preview">GPT-4 Turbo</option>
+        <option value="gpt-4o-mini" selected>GPT-4o Mini</option>
+      </select>
+    </div>
+    <div class="settings-group">
+      <label for="top_k_results_severity">Number of Results</label>
+      <select id="top_k_results_severity">
+        <option value="3" selected>3</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="all">All</option>
+      </select>
+    </div>
+    <button id="saveSettings" class="save-btn">Save Settings</button>
+  </div>
+
   <button id="analyzeBtn" class="analyze-btn">
     Analyze Terms & Conditions
   </button>

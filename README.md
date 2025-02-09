@@ -1,4 +1,4 @@
-# AI Lawyer Copilot - Chrome Extension
+# TERMSinator - Chrome Extension
 
 A Chrome extension that uses OpenAI's GPT to analyze privacy policies and terms of service, highlighting potential privacy concerns and user rights issues.
 
