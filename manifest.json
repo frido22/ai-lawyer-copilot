@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "TERMSinator",
   "version": "1.0",
-  "description": "AI-powered privacy policy and terms analyzer. NOT LEGAL ADVICE - for informational purposes only. Always consult a legal professional.",
+  "description": "AI-powered analyzer for Terms & Conditions and Privacy Policies. For informational purposes only - not legal advice.",
   "permissions": [
     "activeTab",
     "scripting",
@@ -11,14 +11,10 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "images/icon16.png",
-      "48": "images/icon48.png",
       "128": "images/icon128.png"
     }
   },
   "icons": {
-    "16": "images/icon16.png",
-    "48": "images/icon48.png",
     "128": "images/icon128.png"
   },
   "content_scripts": [
