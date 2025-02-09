@@ -1,7 +1,9 @@
 // Configuration settings
 const config = {
     // Replace with your OpenAI API key from https://platform.openai.com/
-    OPENAI_API_KEY: 'your-api-key-here'
+    OPENAI_API_KEY: 'your-api-key-here',
+    OPENAI_API_MODEL: 'gpt-4o-mini',
+    TOP_K_RESULTS_SEVERITY: 3,
 };
 
 // Export the configuration
