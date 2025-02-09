@@ -3,230 +3,409 @@
 <head>
   <title>TERMSinator</title>
   <style>
-    body {
-      min-width: 400px;
-      min-height: 300px;
-      width: 400px;
-      padding: 20px;
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    :root {
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger-color: #dc2626;
+      --warning-color: #f59e0b;
+      --success-color: #16a34a;
+      --text-primary: #1f2937;
+      --text-secondary: #4b5563;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f3f4f6;
+      --border-color: #e5e7eb;
     }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 400px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .container {
+      padding: 1rem;
+    }
+
     .header {
       display: flex;
       align-items: center;
-      margin-bottom: 20px;
-      justify-content: space-between; /* Add this to push items apart */
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
     }
-    .title-container { /* New container for logo and title */
-      display: flex;
-      align-items: center;
-    }
-    .settings-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 5px;
-      color: #2C3E50;
-      transition: color 0.3s ease;
-    }
-    .settings-btn:hover {
-      color: #4A90E2;
-    }
-    .logo {
-      width: 32px;
-      height: 32px;
-      margin-right: 10px;
-    }
-    h1 {
-      font-size: 18px;
+
+    .header h1 {
       margin: 0;
-      color: #2C3E50;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
     }
+
     .analyze-btn {
       width: 100%;
-      padding: 10px;
-      background-color: #4A90E2;
+      padding: 0.625rem 1rem;
+      background-color: var(--primary-color);
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
       cursor: pointer;
-      font-size: 14px;
-      margin-bottom: 15px;
-      transition: background-color 0.3s ease;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
     }
+
     .analyze-btn:hover {
-      background-color: #357ABD;
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
     }
+
     .analyze-btn:disabled {
-      background-color: #ccc;
+      opacity: 0.7;
       cursor: not-allowed;
+      transform: none;
     }
+
     .loading {
       display: none;
       text-align: center;
-      margin: 20px 0;
-      color: #666;
+      padding: 2rem 0;
     }
+
+    .spinner {
+      width: 2.5rem;
+      height: 2.5rem;
+      border: 3px solid var(--bg-secondary);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
     .results {
       display: none;
     }
-    .results h2 {
-      font-size: 16px;
-      color: #2C3E50;
-      margin-bottom: 15px;
-    }
-    .violation {
-      background-color: #f8f9fa;
-      border-left: 4px solid;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 4px;
-      transition: transform 0.2s ease;
-    }
-    .violation:hover {
-      transform: translateX(5px);
-    }
-    .violation[data-severity="HIGH"] {
-      border-left-color: #E74C3C;
-    }
-    .violation[data-severity="MEDIUM"] {
-      border-left-color: #F39C12;
-    }
-    .violation[data-severity="LOW"] {
-      border-left-color: #3498DB;
-    }
-    .violation h3 {
-      margin: 0 0 10px 0;
-      font-size: 14px;
+
+    .results-header {
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
+      margin-bottom: 1rem;
     }
-    .violation .severity {
-      font-size: 12px;
-      padding: 2px 6px;
-      border-radius: 3px;
+
+    .results h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .retry-btn {
+      padding: 0.375rem 0.75rem;
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .retry-btn:hover {
+      background-color: #e5e7eb;
+    }
+
+    .violations {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .violation {
+      background: var(--bg-secondary);
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      border-left: 4px solid transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .violation:last-child {
+      margin-bottom: 0;
+    }
+
+    .violation[data-severity="HIGH"] {
+      border-left-color: var(--danger-color);
+    }
+
+    .violation[data-severity="MEDIUM"] {
+      border-left-color: var(--warning-color);
+    }
+
+    .violation[data-severity="LOW"] {
+      border-left-color: var(--success-color);
+    }
+
+    .violation-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .violation-title {
+      font-weight: 500;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+    }
+
+    .severity-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 1rem;
+      font-weight: 500;
       color: white;
-      margin-left: auto;
     }
-    .violation[data-severity="HIGH"] .severity {
-      background-color: #E74C3C;
+
+    .severity-badge[data-severity="HIGH"] {
+      background-color: var(--danger-color);
     }
-    .violation[data-severity="MEDIUM"] .severity {
-      background-color: #F39C12;
+
+    .severity-badge[data-severity="MEDIUM"] {
+      background-color: var(--warning-color);
     }
-    .violation[data-severity="LOW"] .severity {
-      background-color: #3498DB;
+
+    .severity-badge[data-severity="LOW"] {
+      background-color: var(--success-color);
     }
-    .violation p {
-      margin: 0;
-      font-size: 13px;
-      color: #666;
-      line-height: 1.4;
+
+    .violation-description {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      line-height: 1.5;
     }
-    .settings-panel {
+
+    .error-container {
       display: none;
-      position: absolute;
-      top: 60px;
-      right: 20px;
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 15px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      width: 300px;
-      z-index: 1000;
+      text-align: center;
+      padding: 2rem;
+      background-color: #fee2e2;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
     }
-    .settings-panel.show {
-      display: block;
+
+    .error-message {
+      color: var(--danger-color);
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
     }
-    .settings-group {
-      margin-bottom: 15px;
+
+    .api-section {
+      background: var(--bg-secondary);
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
     }
-    .settings-group label {
-      display: block;
-      font-size: 13px;
-      color: #2C3E50;
-      margin-bottom: 5px;
+
+    .api-section.compact {
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
     }
-    .settings-group input,
-    .settings-group select {
+
+    .api-section.compact .input-group,
+    .api-section.compact .save-btn,
+    .api-section.compact .api-source {
+      display: none;
+    }
+
+    .api-section.compact h2 {
+      margin: 0;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .api-section.compact .api-key-status {
+      font-size: 0.75rem;
+      color: var(--success-color);
+    }
+
+    .api-section.compact .edit-btn {
+      font-size: 0.75rem;
+      color: var(--primary-color);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .input-group {
+      margin-bottom: 0.75rem;
+    }
+
+    .api-key-input {
       width: 100%;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 13px;
+      padding: 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-family: monospace;
     }
-    .settings-group input:focus,
-    .settings-group select:focus {
+
+    .api-key-input:focus {
       outline: none;
-      border-color: #4A90E2;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
     }
+
+    .api-key-hint {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+
     .save-btn {
-      width: 100%;
-      padding: 8px;
-      background-color: #4A90E2;
+      background-color: var(--primary-color);
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 0.375rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
       cursor: pointer;
-      font-size: 13px;
-      transition: background-color 0.3s ease;
+      transition: all 0.2s ease;
     }
+
     .save-btn:hover {
-      background-color: #357ABD;
+      background-color: var(--primary-hover);
+    }
+
+    .status-message {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .status-message.success {
+      color: var(--success-color);
+    }
+
+    .status-message.error {
+      color: var(--danger-color);
+    }
+
+    .api-source {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+    }
+
+    .api-source a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    .api-source a:hover {
+      text-decoration: underline;
+    }
+
+    .disclaimer {
+      margin-top: 0.5rem;
+      padding: 0.625rem;
+      background-color: var(--bg-secondary);
+      border-radius: 0.375rem;
+      border-left: 4px solid var(--warning-color);
+    }
+
+    .disclaimer p {
+      margin: 0;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .disclaimer strong {
+      color: var(--text-primary);
+    }
+
+    #results {
+      margin-top: 0.5rem;
+    }
+
+    #violations {
+      margin-bottom: 0.5rem;
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="title-container">
-      <img src="images/icon48.png" alt="Logo" class="logo">
+  <div class="container">
+    <div class="header">
       <h1>TERMSinator</h1>
     </div>
-    <button class="settings-btn">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"/>
+
+    <div class="api-section" id="apiSection">
+      <h2>API Key Configuration <span class="api-key-status"></span>
+        <button class="edit-btn" style="display: none;">Change Key</button>
+      </h2>
+      <div class="input-group">
+        <input type="password" id="apiKeyInput" class="api-key-input" placeholder="Enter OpenAI API key" spellcheck="false">
+        <div class="api-key-hint">Format: sk-...</div>
+      </div>
+      <button id="saveApiKey" class="save-btn">Save API Key</button>
+      <div id="apiKeyStatus" class="status-message"></div>
+      <div class="api-source">
+        Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a>
+      </div>
+    </div>
+    
+    <button id="analyzeBtn" class="analyze-btn" disabled>
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
+      Analyze Terms & Conditions
     </button>
-  </div>
 
-  <div id="settingsPanel" class="settings-panel">
-    <div class="settings-group">
-      <label for="apiKey">OpenAI API Key</label>
-      <input type="password" id="apiKey" placeholder="Enter your API key">
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p class="loading-text">Analyzing document...</p>
     </div>
-    <div class="settings-group">
-      <label for="model">OpenAI Model</label>
-      <select id="model">
-        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-        <option value="gpt-4-turbo-preview">GPT-4 Turbo</option>
-        <option value="gpt-4o-mini" selected>GPT-4o Mini</option>
-      </select>
+
+    <div id="error" class="error-container">
+      <p class="error-message">An error occurred while analyzing the document.</p>
+      <button id="retryBtn" class="retry-btn">Try Again</button>
     </div>
-    <div class="settings-group">
-      <label for="top_k_results_severity">Number of Results</label>
-      <select id="top_k_results_severity">
-        <option value="3" selected>3</option>
-        <option value="5">5</option>
-        <option value="10">10</option>
-        <option value="all">All</option>
-      </select>
+
+    <div id="results" style="display: none;">
+      <div id="violations"></div>
+      <button id="newAnalysisBtn" class="analyze-btn">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        New Analysis
+      </button>
+      <div class="disclaimer">
+        <p><strong>Disclaimer:</strong> This analysis is provided for informational purposes only and does not constitute legal advice. Please consult with a qualified legal professional for specific legal guidance. The analysis is generated by AI and may not be complete or fully accurate.</p>
+      </div>
     </div>
-    <button id="saveSettings" class="save-btn">Save Settings</button>
-  </div>
-
-  <button id="analyzeBtn" class="analyze-btn">
-    Analyze Terms & Conditions
-  </button>
-
-  <div id="loading" class="loading">
-    Analyzing document... Please wait...
-  </div>
-
-  <div id="results" class="results">
-    <h2>Top Privacy Concerns:</h2>
-    <div id="violations"></div>
   </div>
 
   <script src="popup.js"></script>

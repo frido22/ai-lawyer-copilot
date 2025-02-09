@@ -3,93 +3,154 @@ document.addEventListener('DOMContentLoaded', function() {
   const loadingDiv = document.getElementById('loading');
   const resultsDiv = document.getElementById('results');
   const violationsDiv = document.getElementById('violations');
-  const settingsBtn = document.querySelector('.settings-btn');
-  const settingsPanel = document.getElementById('settingsPanel');
-  // Load saved settings
-  chrome.storage.sync.get(['OPENAI_API_KEY', 'OPENAI_API_MODEL', 'TOP_K_RESULTS_SEVERITY'], function(items) {
-    if (items.OPENAI_API_KEY) document.getElementById('apiKey').value = items.OPENAI_API_KEY;
-    if (items.OPENAI_API_MODEL) document.getElementById('model').value = items.OPENAI_API_MODEL;
-    if (items.TOP_K_RESULTS_SEVERITY) document.getElementById('top_k_results_severity').value = items.TOP_K_RESULTS_SEVERITY;
-  });
-  // Settings button click handler
-  settingsBtn.addEventListener('click', function() {
-    settingsPanel.classList.toggle('show');
-  });
+  const errorDiv = document.getElementById('error');
+  const retryBtn = document.getElementById('retryBtn');
+  const newAnalysisBtn = document.getElementById('newAnalysisBtn');
+  const apiKeyInput = document.getElementById('apiKeyInput');
+  const saveApiKeyBtn = document.getElementById('saveApiKey');
+  const apiKeyStatus = document.getElementById('apiKeyStatus');
+  const apiSection = document.getElementById('apiSection');
+  const editKeyBtn = apiSection.querySelector('.edit-btn');
+  const apiKeyStatusText = apiSection.querySelector('.api-key-status');
 
-  // Close settings panel when clicking outside
-  document.addEventListener('click', function(event) {
-    if (!settingsPanel.contains(event.target) && !settingsBtn.contains(event.target)) {
-      settingsPanel.classList.remove('show');
+  // Load saved API key
+  chrome.storage.sync.get('apiKey', function(data) {
+    if (data.apiKey) {
+      apiKeyInput.value = '••••••••••••••••';
+      analyzeBtn.disabled = false;
+      apiSection.classList.add('compact');
+      editKeyBtn.style.display = 'block';
+      apiKeyStatusText.textContent = 'API Key Saved';
     }
   });
 
-  // Save settings
-  document.getElementById('saveSettings').addEventListener('click', function() {
-    const apiKey = document.getElementById('apiKey').value;
-    const model = document.getElementById('model').value;
-    const topKResults = document.getElementById('top_k_results_severity').value;
-  
-    chrome.storage.sync.set({
-      OPENAI_API_KEY: apiKey,
-      OPENAI_API_MODEL: model,
-      TOP_K_RESULTS_SEVERITY: topKResults
-    }, function() {
-      settingsPanel.classList.remove('show');
-      // Optional: Show a success message
-      alert('Settings saved successfully!');
-    });
+  // Edit API key button
+  editKeyBtn.addEventListener('click', () => {
+    apiSection.classList.remove('compact');
+    editKeyBtn.style.display = 'none';
+    apiKeyStatusText.textContent = '';
+    apiKeyInput.value = '';
+    apiKeyInput.focus();
   });
-  
-  // Analyze button click handler
-  analyzeBtn.addEventListener('click', async () => {
-    // Show loading state
-    loadingDiv.style.display = 'block';
-    resultsDiv.style.display = 'none';
-    analyzeBtn.disabled = true;
+
+  // Save API key
+  saveApiKeyBtn.addEventListener('click', async () => {
+    const apiKey = apiKeyInput.value.trim();
+    
+    if (!apiKey) {
+      showStatus('Please enter an API key', 'error');
+      return;
+    }
+
+    if (!apiKey.startsWith('sk-')) {
+      showStatus('Invalid API key format. It should start with "sk-"', 'error');
+      return;
+    }
 
     try {
+      // Test the API key
+      const response = await fetch('https://api.openai.com/v1/models', {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`
+        }
+      });
+
+      if (response.ok) {
+        await chrome.storage.sync.set({ apiKey });
+        showStatus('API key saved successfully!', 'success');
+        apiKeyInput.value = '••••••••••••••••';
+        analyzeBtn.disabled = false;
+        
+        // Switch to compact mode after showing success message
+        setTimeout(() => {
+          apiSection.classList.add('compact');
+          editKeyBtn.style.display = 'block';
+          apiKeyStatusText.textContent = 'API Key Saved';
+        }, 1500);
+      } else {
+        showStatus('Invalid API key. Please check and try again.', 'error');
+      }
+    } catch (error) {
+      showStatus('Error validating API key. Please try again.', 'error');
+    }
+  });
+
+  function showStatus(message, type) {
+    apiKeyStatus.textContent = message;
+    apiKeyStatus.className = 'status-message ' + type;
+    setTimeout(() => {
+      apiKeyStatus.textContent = '';
+      apiKeyStatus.className = 'status-message';
+    }, 1500);
+  }
+
+  // Function to analyze the current page
+  async function analyzeCurrentPage() {
+    try {
+      // Reset UI state
+      loadingDiv.style.display = 'block';
+      resultsDiv.style.display = 'none';
+      errorDiv.style.display = 'none';
+      analyzeBtn.disabled = true;
+
       // Get the active tab
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       
-      // Send message to content script to get the page content
-      const response = await chrome.tabs.sendMessage(tab.id, { action: 'getTerms' });
-      
-      if (response && response.text) {
-        // Get settings from storage
-        const settings = await chrome.storage.sync.get(['OPENAI_API_KEY', 'OPENAI_API_MODEL', 'TOP_K_RESULTS_SEVERITY']);
-        console.log('Settings:', settings);
-        // Analyze the text using background script (which handles API calls)
-        const analysis = await chrome.runtime.sendMessage({
-          action: 'analyzeTerms',
-          text: response.text,
-          settings: settings
+      // Inject content script if needed
+      if (!tab.url.startsWith('chrome://') && !tab.url.startsWith('edge://')) {
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['content.js']
         });
+        
+        // Create a timeout promise
+        const timeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Analysis timed out. Please try again.')), 30000)
+        );
 
-        if (analysis && analysis.violations) {  // Added check for analysis existence
-          // Display results
-          displayResults(analysis.violations);
+        // Get page content
+        const response = await chrome.tabs.sendMessage(tab.id, { action: 'getTerms' });
+        
+        if (response && response.text) {
+          // Race between the analysis and timeout
+          const analysis = await Promise.race([
+            chrome.runtime.sendMessage({
+              action: 'analyzeTerms',
+              text: response.text
+            }),
+            timeout
+          ]);
+
+          if (analysis.violations) {
+            displayResults(analysis.violations);
+          } else {
+            throw new Error('No analysis results received');
+          }
         } else {
-          throw new Error('No analysis results received');
+          throw new Error('No text content found to analyze');
         }
       } else {
-        throw new Error('No text content received from page');
+        throw new Error('Cannot analyze Chrome/Edge system pages');
       }
     } catch (error) {
       console.error('Error:', error);
-      violationsDiv.innerHTML = '<div class="violation"><h3>Error</h3><p>Could not analyze the page. Make sure you\'re on a page with terms and conditions.</p></div>';
+      showError(error.message || 'An error occurred while analyzing the document');
     } finally {
-      // Hide loading state
       loadingDiv.style.display = 'none';
-      resultsDiv.style.display = 'block';
       analyzeBtn.disabled = false;
     }
-  });
+  }
 
+  function showError(message) {
+    errorDiv.querySelector('.error-message').textContent = message;
+    errorDiv.style.display = 'block';
+    resultsDiv.style.display = 'none';
+  }
 
   function displayResults(violations) {
     violationsDiv.innerHTML = '';
     resultsDiv.style.display = 'block';
-    loadingDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
     
     if (violations && violations.length > 0) {
       violations.forEach(violation => {
@@ -98,20 +159,31 @@ document.addEventListener('DOMContentLoaded', function() {
         violationElement.setAttribute('data-severity', violation.severity);
         
         violationElement.innerHTML = `
-          <h3>
-            ${violation.title}
-            <span class="severity">${violation.severity}</span>
-          </h3>
-          <p>${violation.description}</p>
+          <div class="violation-header">
+            <span class="violation-title">${violation.title}</span>
+            <span class="severity-badge" data-severity="${violation.severity}">${violation.severity}</span>
+          </div>
+          <p class="violation-description">${violation.description}</p>
         `;
         violationsDiv.appendChild(violationElement);
       });
     } else {
       violationsDiv.innerHTML = `
         <div class="violation" data-severity="LOW">
-          <h3>✅ No Major Issues Found</h3>
-          <p>No significant privacy concerns were detected in this document. However, it's always good practice to read through terms and conditions carefully.</p>
+          <div class="violation-header">
+            <span class="violation-title">No Major Issues Found</span>
+            <span class="severity-badge" data-severity="LOW">LOW</span>
+          </div>
+          <p class="violation-description">
+            No significant privacy concerns were detected in this document. 
+            However, it's always good practice to read through terms and conditions carefully.
+          </p>
         </div>`;
     }
   }
+
+  // Event Listeners
+  analyzeBtn.addEventListener('click', analyzeCurrentPage);
+  retryBtn.addEventListener('click', analyzeCurrentPage);
+  newAnalysisBtn.addEventListener('click', analyzeCurrentPage);
 });

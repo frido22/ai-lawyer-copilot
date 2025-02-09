@@ -2,11 +2,11 @@
   "manifest_version": 3,
   "name": "TERMSinator",
   "version": "1.0",
-  "description": "AI-powered privacy policy and terms analyzer",
+  "description": "AI-powered privacy policy and terms analyzer. NOT LEGAL ADVICE - for informational purposes only. Always consult a legal professional.",
   "permissions": [
     "activeTab",
-    "storage",
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -30,5 +30,8 @@
   "background": {
     "service_worker": "background.js",
     "type": "module"
-  }
+  },
+  "host_permissions": [
+    "https://api.openai.com/*"
+  ]
 }

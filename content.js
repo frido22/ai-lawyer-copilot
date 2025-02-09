@@ -1,33 +1,32 @@
 // Listen for messages from the popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getTerms') {
-    // Get all text content from the page
-    let text = document.body.innerText;
-    console.log('Found text:', text);
+    try {
+      // Get all text content from the main content area
+      const mainContent = document.body.innerText;
+      
+      // If the page is too short, it might not be the full terms
+      if (mainContent.length < 100) {
+        // Try to find specific content containers that might hold the terms
+        const possibleContainers = [
+          ...document.querySelectorAll('main, article, .content, .terms, .policy, [role="main"]'),
+          ...document.querySelectorAll('div[class*="content"], div[class*="terms"], div[class*="policy"]')
+        ];
 
-    // Try to find specific terms and conditions sections
-    const possibleSelectors = [
-      'terms-and-conditions',
-      'terms-of-service',
-      'privacy-policy',
-      'legal-terms',
-      'tos',
-      'terms'
-    ];
-
-    for (const selector of possibleSelectors) {
-      const element = document.getElementById(selector) || 
-                     document.querySelector(`[class*="${selector}"]`);
-      if (element) {
-        text = element.innerText;
-        break;
+        for (const container of possibleContainers) {
+          if (container.innerText.length > mainContent.length) {
+            sendResponse({ text: container.innerText });
+            return true;
+          }
+        }
       }
-    }
 
-    // Send the text back to the popup
-    sendResponse({ text });
+      // Send the extracted text back to the popup
+      sendResponse({ text: mainContent });
+    } catch (error) {
+      console.error('Error extracting text:', error);
+      sendResponse({ error: 'Failed to extract text from the page' });
+    }
+    return true;
   }
-  
-  // Required for async response
-  return true;
 });

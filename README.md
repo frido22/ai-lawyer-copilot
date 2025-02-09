@@ -1,45 +1,44 @@
-# TERMSinator - Chrome Extension
+# TERMSinator
 
-A Chrome extension that uses OpenAI's GPT to analyze privacy policies and terms of service, highlighting potential privacy concerns and user rights issues.
+A Chrome extension that helps you understand Terms & Conditions and Privacy Policies using AI analysis.
+
+## ⚠️ Legal Disclaimer
+
+**THIS IS NOT LEGAL ADVICE**: The analysis provided by TERMSinator is for informational purposes only and does not constitute legal advice. The extension uses AI to analyze legal documents, but AI analysis may be incomplete or inaccurate. Always consult with a qualified legal professional for specific legal guidance. We are not responsible for any decisions made based on the extension's analysis.
 
 ## Features
 
-- Quick analysis of privacy policies and terms of service
-- Identifies top 3 most concerning privacy violations
-- Easy-to-understand explanations with severity ratings
-- Privacy-focused analysis using OpenAI's GPT
+- Analyzes Terms & Conditions and Privacy Policies on any website
+- Identifies potential privacy concerns and user rights issues
+- Rates issues by severity (HIGH/MEDIUM/LOW)
+- Provides clear explanations of why each issue matters
+- Secure API key management
 
 ## Installation
 
-1. Clone this repository
-2. Create a `config.js` file in the root directory with your OpenAI API key:
-   ```javascript
-   const config = {
-       OPENAI_API_KEY: 'your-api-key-here'
-   };
-   export default config;
-   ```
-3. Open Chrome and go to `chrome://extensions/`
-4. Enable "Developer mode" in the top right
-5. Click "Load unpacked" and select the extension directory
-
-## Configuration
-
-Before using the extension, make sure to:
-1. Get an OpenAI API key from [OpenAI's platform](https://platform.openai.com/)
-2. Add your API key to `config.js`
+1. Download the extension from the Chrome Web Store
+2. Click the extension icon in your browser toolbar
+3. Enter your OpenAI API key (get one from [OpenAI Platform](https://platform.openai.com/api-keys))
+4. Save your API key
 
 ## Usage
 
-1. Navigate to any website with terms of service or privacy policy
+1. Visit any website with Terms & Conditions or Privacy Policy
 2. Click the extension icon
-3. Select the text you want to analyze
-4. Click "Analyze" to get insights about potential privacy concerns
+3. Click "Analyze Terms & Conditions"
+4. Review the analysis results
 
-## Security Note
+## Privacy & Security
 
-The `config.js` file containing your API key is listed in `.gitignore` to prevent accidentally committing sensitive information. Make sure to keep your API key secure and never share it publicly.
+- Your OpenAI API key is stored securely in Chrome's sync storage
+- No personal data is collected or stored
+- All analysis is performed through OpenAI's API
+- HTTPS is used for all API communications
+
+## Support
+
+If you encounter any issues or have questions, please submit them on our GitHub repository.
 
 ## License
 
-MIT License - See LICENSE file for details
+This project is licensed under the MIT License - see the LICENSE file for details.
