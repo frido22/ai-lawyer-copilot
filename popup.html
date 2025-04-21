@@ -84,18 +84,43 @@
       padding: 2rem 0;
     }
 
-    .spinner {
-      width: 2.5rem;
-      height: 2.5rem;
-      border: 3px solid var(--bg-secondary);
-      border-top-color: var(--primary-color);
-      border-radius: 50%;
-      margin: 0 auto 1rem;
-      animation: spin 1s linear infinite;
+    .skeleton-group {
+      margin-top: 1.5rem;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .skeleton {
+      background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.2s infinite linear;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+    }
+
+    .skeleton-title {
+      width: 60%;
+      height: 20px;
+      margin-bottom: 0.5rem;
+    }
+
+    .skeleton-badge {
+      width: 80px;
+      height: 16px;
+      margin-bottom: 0.5rem;
+    }
+
+    .skeleton-desc {
+      width: 95%;
+      height: 14px;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes skeleton-loading {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
     }
 
     .loading-text {
@@ -386,7 +411,17 @@
     </button>
 
     <div id="loading" class="loading">
-      <div class="spinner"></div>
+      <div class="skeleton-group">
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-badge"></div>
+        <div class="skeleton skeleton-desc"></div>
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-badge"></div>
+        <div class="skeleton skeleton-desc"></div>
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-badge"></div>
+        <div class="skeleton skeleton-desc"></div>
+      </div>
       <p class="loading-text">Analyzing document...</p>
     </div>
 
